@@ -1,214 +1,84 @@
 package main.java.dao;
 
-import main.java.dao.generic_jdbc.ConnectionFactory;
+import main.java.dao.generic_jdbc.GenericDAO;
 import main.java.domain.Produto;
 
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
-public class ProdutoDAO implements IProdutoDAO {
 
-    @Override
-    public Integer cadastrar(Produto produto) throws Exception {
-        Connection connection = null;
-        PreparedStatement stm = null;
-        try {
-            connection = (Connection) ConnectionFactory.getConnection();
-            String sql = getSqlInsert();
-            stm = connection.prepareStatement(sql);
-            adicionarParametrosInsert(stm, produto);
-            return stm.executeUpdate();
-        } catch(Exception e) {
-            throw e;
-        } finally {
-            closeConnection(connection, stm, null);
-        }
+public class ProdutoDAO extends GenericDAO<Produto, String> implements IProdutoDAO {
+
+    public ProdutoDAO() {
+        super();
     }
 
     @Override
-    public Produto buscar(Long sku) throws Exception {
-        Connection connection = null;
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        Produto produto = null;
-        try {
-            connection = (Connection) ConnectionFactory.getConnection();
-            String sql = getSqlSelect();
-            stm = ((java.sql.Connection) connection).prepareStatement(sql);
-            adicionarParametrosSelect(stm,Long.parseLong(String.valueOf(sku)));
-            rs = stm.executeQuery();
-
-            if (rs.next()) {
-                produto = new Produto();
-                produto.setId(rs.getLong("ID"));
-                produto.setSku(rs.getLong("SKU"));
-                produto.setDescricao(rs.getString("DESCRICAO"));
-                produto.setUnidade(rs.getString("UNIDADE"));
-                produto.setValor_unitario(rs.getDouble("VALOR_UNITARIO"));
-            }
-
-        } catch(Exception e) {
-            throw e;
-        } finally {
-            closeConnection(connection, stm, rs);
-        }
-        return produto;
+    public Class<Produto> getTipoClasse() {
+        return Produto.class;
     }
 
     @Override
-    public Integer excluir(Produto produto) throws Exception {
-        Connection connection = null;
-        PreparedStatement stm = null;
-        try {
-            connection = (Connection) ConnectionFactory.getConnection();
-            String sql = getSqlDelete();
-            stm = ((java.sql.Connection) connection).prepareStatement(sql);
-            adicionarParametrosDelete(stm, produto);
-            return stm.executeUpdate();
-        } catch (Exception e) {
-            throw e;
-        } finally {
-            closeConnection(connection, stm, null);
-        }
-    }
-
-
-    @Override
-    public List<Produto> buscarTodos() throws Exception {
-        Connection connection = null;
-        PreparedStatement stm = null;
-        ResultSet rs = null;
-        List<Produto> list = new ArrayList<>();
-        Produto produto = null;
-        try {
-            connection = (Connection) ConnectionFactory.getConnection();
-            String sql = getSqlSelectAll();
-            stm = ((java.sql.Connection) connection).prepareStatement(sql);
-            rs = stm.executeQuery();
-
-            while (rs.next()) {
-                produto = new Produto();
-                Long id = rs.getLong("ID");
-                Long sku = rs.getLong("SKU");
-                String descricao = rs.getString("DESCRICAO");
-                String unidade = rs.getString("UNIDADE");
-                Double valor_unitario = rs.getDouble("VALOR_UNITARIO");
-                produto.setId(id);
-                produto.setSku(sku);
-                produto.setDescricao(descricao);
-                produto.setUnidade(unidade);
-                produto.setValor_unitario(valor_unitario);
-
-                list.add(produto);
-            }
-        } catch(Exception e) {
-            throw e;
-        } finally {
-            closeConnection(connection, stm, rs);
-        }
-        return list;
-    }
-
-    private String getSqlSelectAll() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM PRODUTO ");
-        return sb.toString();
-    }
-
-    private void adicionarParametrosDelete(PreparedStatement stm, Produto produto) throws SQLException {
-        stm.setLong(1, produto.getSku());
-    }
-
-    private String getSqlDelete() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("DELETE FROM PRODUTO ");
-        sb.append("WHERE SKU = ?");
-        return sb.toString();
-    }
-
-    private void adicionarParametrosSelect(PreparedStatement stm, Long sku) throws SQLException {
-        stm.setLong(1, sku);
-    }
-
-    private String getSqlSelect() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT * FROM PRODUTO ");
-        sb.append("WHERE SKU = ? ");
-        return sb.toString();
-    }
-
-    private void closeConnection(Connection connection, PreparedStatement stm, ResultSet rs) {
-        try {
-            if (rs != null && !rs.isClosed()) {
-                rs.close();
-            }
-            if (stm != null && !stm.isClosed()) {
-                stm.close();
-            }
-            if (connection != null && !connection.isClosed()) {
-                connection.close();
-            }
-        } catch (SQLException e1) {
-            // TODO Auto-generated catch block
-            e1.printStackTrace();
-        }
-    }
-
-
-    private void adicionarParametrosInsert(PreparedStatement stm, Produto produto) throws SQLException {
-        stm.setLong(1, produto.getSku());
-        stm.setString(2, produto.getDescricao());
-        stm.setString(3, produto.getUnidade());
-        stm.setDouble(4, produto.getValor_unitario());
-
-    }
-
-    private String getSqlInsert() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("INSERT INTO PRODUTO (ID,SKU,DESCRICAO,UNIDADE,VALOR_UNITARIO) ");
-        sb.append("VALUES (nextval('SQ_PRODUTO'),?,?,?,?)");
-        return sb.toString();
+    public void atualiarDados(Produto entity, Produto entityCadastrado) {
+        entityCadastrado.setCodigo(entity.getCodigo());
+        entityCadastrado.setDescricao(entity.getDescricao());
+        entityCadastrado.setNome(entity.getNome());
+        entityCadastrado.setValor(entity.getValor());
+        entityCadastrado.setUnidade(entity.getUnidade());
     }
 
     @Override
-    public Integer atualizar(Produto produto) throws Exception {
-        Connection connection = null;
-        PreparedStatement stm = null;
-        try {
-            connection = (Connection) ConnectionFactory.getConnection();
-            String sql = getSqlUpdate();
-            stm = connection.prepareStatement(sql);
-            adicionarParametrosUpdate(stm, produto);
-            return stm.executeUpdate();
-        } catch(Exception e) {
-            throw e;
-        } finally {
-            closeConnection(connection, stm, null);
-        }
+    protected String getQueryInsercao() {
+        String sb = "INSERT INTO TB1_PRODUTO " +
+                "(ID, CODIGO, NOME, DESCRICAO, VALOR, UNIDADE)" +
+                "VALUES (nextval('sq_produto'),?,?,?,?,?)";
+        return sb;
     }
 
-    private void adicionarParametrosUpdate(PreparedStatement stm, Produto produto) throws SQLException {
-        stm.setLong(1, produto.getSku());
-        stm.setString(2, produto.getDescricao());
-        stm.setString(3, produto.getUnidade());
-        stm.setDouble(4, produto.getValor_unitario());
-        stm.setDouble(5, produto.getId());
+    @Override
+    protected void setParametrosQueryInsercao(PreparedStatement stmInsert, Produto entity) throws SQLException {
+        stmInsert.setString(1, entity.getCodigo());
+        stmInsert.setString(2, entity.getNome());
+        stmInsert.setString(3, entity.getDescricao());
+        stmInsert.setBigDecimal(4, entity.getValor());
+        stmInsert.setString(5, entity.getUnidade());
     }
 
-    private String getSqlUpdate() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("UPDATE PRODUTO ");
-        sb.append("SET SKU = ?, DESCRICAO = ?, UNIDADE = ?, VALOR_UNITARIO = ? ");
-        sb.append("WHERE ID = ?");
-        return sb.toString();
+    @Override
+    protected String getQueryExclusao() {
+        return "DELETE FROM TB1_PRODUTO WHERE CODIGO = ?";
     }
 
+    @Override
+    protected void setParametrosQueryExclusao(PreparedStatement stmExclusao, String valor) throws SQLException {
+        stmExclusao.setString(1, valor);
+    }
 
+    @Override
+    protected String getQueryAtualizacao() {
+        String sb = "UPDATE TB1_PRODUTO " +
+                "SET CODIGO = ?," +
+                "NOME = ?," +
+                "DESCRICAO = ?," +
+                "VALOR = ?," +
+                "UNIDADE = ?" +
+                " WHERE CODIGO = ?";
+        return sb;
+    }
 
+    @Override
+    protected void setParametrosQueryAtualizacao(PreparedStatement stmUpdate, Produto entity) throws SQLException {
+        stmUpdate.setString(1, entity.getCodigo());
+        stmUpdate.setString(2, entity.getNome());
+        stmUpdate.setString(3, entity.getDescricao());
+        stmUpdate.setBigDecimal(4, entity.getValor());
+        stmUpdate.setString(5, entity.getUnidade());
+        stmUpdate.setString(6, entity.getCodigo());
+    }
 
+    @Override
+    protected void setParametrosQuerySelect(PreparedStatement stmExclusao, String valor) throws SQLException {
+        stmExclusao.setString(1, valor);
+    }
 
 }

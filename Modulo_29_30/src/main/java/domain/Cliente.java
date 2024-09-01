@@ -1,28 +1,49 @@
 package main.java.domain;
 
-public class Cliente {
-    private Long codigo;
-    private String cpf;
+import main.java.anotacao.ColunaTabela;
+import main.java.anotacao.Tabela;
+import main.java.anotacao.TipoChave;
+import main.java.dao.Persistente;
+
+@Tabela("TB1_CLIENTE")
+public class Cliente implements Persistente {
+    @ColunaTabela(dbName = "id", setJavaName = "setId")
+    private Long id;
+
+    @ColunaTabela(dbName = "nome", setJavaName = "setNome")
     private String nome;
-    private String endereco;
+
+    @TipoChave("getCpf")
+    @ColunaTabela(dbName = "cpf", setJavaName = "setCpf")
+    private Long cpf;
+
+    @ColunaTabela(dbName = "tel", setJavaName = "setTel")
+    private Long tel;
+
+    @ColunaTabela(dbName = "endereco", setJavaName = "setEnd")
+    private String end;
+
+    @ColunaTabela(dbName = "numero", setJavaName = "setNumero")
+    private Integer numero;
+
+    @ColunaTabela(dbName = "cidade", setJavaName = "setCidade")
     private String cidade;
+
+    @ColunaTabela(dbName = "estado", setJavaName = "setEstado")
     private String estado;
-    private double id;
 
-    public Long getCodigo() {
-        return codigo;
+    @ColunaTabela(dbName = "genero", setJavaName = "setGenero")
+    private String genero;
+
+
+    @Override
+    public Long getId() {
+        return id;
     }
 
-    public void setCodigo(Long codigo) {
-        this.codigo = codigo;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
+    @Override
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getNome() {
@@ -33,12 +54,36 @@ public class Cliente {
         this.nome = nome;
     }
 
-    public String getEndereco() {
-        return endereco;
+    public Long getCpf() {
+        return cpf;
     }
 
-    public void setEndereco(String endereco) {
-        this.endereco = endereco;
+    public void setCpf(Long cpf) {
+        this.cpf = cpf;
+    }
+
+    public Long getTel() {
+        return tel;
+    }
+
+    public void setTel(Long tel) {
+        this.tel = tel;
+    }
+
+    public String getEnd() {
+        return end;
+    }
+
+    public void setEnd(String end) {
+        this.end = end;
+    }
+
+    public Integer getNumero() {
+        return numero;
+    }
+
+    public void setNumero(Integer numero) {
+        this.numero = numero;
     }
 
     public String getCidade() {
@@ -57,11 +102,11 @@ public class Cliente {
         this.estado = estado;
     }
 
-    public double getId() {
-        return id;
+    public String getGenero() {
+        return genero;
     }
 
-    public void setId(double id) {
-        this.id = id;
+    public void setGenero(String genero) {
+        this.genero = genero;
     }
 }
